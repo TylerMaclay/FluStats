@@ -50,34 +50,8 @@ int main(int argc, char** argv) {
 	double median = 0.0;
 	try {
 		auto input = parseCSV("./rad59.csv");
-		for (auto it = input.begin(); it != input.end(); it++) {
-			std::cout << "Mutants: " << it->r << "\t" << "Cells: " << it->N << "\n";
-		}
-
 		auto cultureData = accumulateCultures(input);
 		auto cells = averageCellcounts(input);
-
-		for (auto it = cultureData.begin(); it != cultureData.end(); it++) {
-			std::cout << "Mutant number: " << it->first << "\tCount: " << it->second << "\n";
-		}
-
-		std::cout << "Average cell count across cultures: " << cells << "\n";
-
-		std::cout << "Median mutants: " << findMedian(input) << "\n";
-
-		/*std::ofstream out("out.csv");
-		if (!out.is_open()) {
-			throw std::runtime_error("Unable to open output file");
-		}
-		else {
-			//Use method of the median to find an initial m
-			auto initM = methodOfTheMedian(findMedian(input));
-			auto data = mSweep(initM, cultureData);
-			out << "m,score\n";
-			for(auto it = data.begin(); it != data.end(); it++) {
-				out << it->first << "," << it->second << "\n";
-			}
-		}*/
 		auto m = mssFindM(methodOfTheMedian(findMedian(input)), cultureData);
 		auto rate = (m / cells);
 		auto tenminussixrate = rate * std::pow(10, 6);
