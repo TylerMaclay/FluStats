@@ -121,6 +121,7 @@ https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2932672/
 https://www.sciencedirect.com/science/article/pii/S0076687905090270?via%3Dihub
 */
 
+//Generates frequency distribution for MSS-MLE for a given m value
 std::vector<double> mssAccumulationFunction(double mGuess, int max = 150) {
 	std::vector<double> Accumulator;
 	Accumulator.push_back(std::exp(-1 * mGuess));
@@ -136,7 +137,9 @@ std::vector<double> mssAccumulationFunction(double mGuess, int max = 150) {
 	return Accumulator;
 }
 
-//Iteratively looks for maximum likelihood m value. Uses a heavily modified Newton's method.
+//Iteratively looks for maximum likelihood m value. Using a riff on a binary search. Epsilon tells the program which way to go
+//Epsilon is required so that program continues to move in the right direction, due to the nature of the distribution generated
+//it would be easy to miss the maximal value by averaging current and the greater of high and low.
 double mssFindM(double initM, const std::map<int, int>& cultureData) {
 	auto maxMutants = (cultureData.rbegin())->first;
 	auto maxVal = (maxMutants > 150 ? (maxMutants+1) : 150);
@@ -186,7 +189,7 @@ double mssScore(const std::map<int, int>& equation, const std::vector<double>& d
 	return score;
 }
 
-
+//Collects data from well formatted csv files. Expected files to have general format of r,N\n
 std::vector<Datapoint> parseCSV(const std::string& fileName) {
 	std::ifstream in(fileName);
 	if (!in.is_open()) {
@@ -207,6 +210,8 @@ std::vector<Datapoint> parseCSV(const std::string& fileName) {
 
 	return data;
 }
+
+//Generates histogram data of culture data (maybe should rename function?)
 std::map<int, int> accumulateCultures(const std::vector<Datapoint>& data) {
 	std::map<int, int> dataAccumulate;
 	for (auto it = data.begin(); it != data.end(); it++) {
@@ -222,7 +227,7 @@ std::map<int, int> accumulateCultures(const std::vector<Datapoint>& data) {
 	return dataAccumulate;
 }
 
-
+//Takes cell counts reported (N) and averages them.
 double averageCellcounts(const std::vector<Datapoint>& data) {
 	double rollingAverage = 0.0;
 	for (auto it = data.begin(); it != data.end(); it++) {
@@ -231,6 +236,7 @@ double averageCellcounts(const std::vector<Datapoint>& data) {
 
 	return rollingAverage;
 }
+//Finds the median of raw r values. Note! Datapoint is the input here not the histogram generated above.
 double findMedian(const std::vector<Datapoint>& input) {
 	std::vector<int> cultures;
 	for (auto it = input.begin(); it != input.end(); it++) {
