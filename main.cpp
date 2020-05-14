@@ -19,7 +19,7 @@ public:
 
 	Datapoint(int init_r, int init_N) : r(init_r), N(init_N) {}
 };
-
+enum Statistics { mss, lc_mm, freq};
 
 //LC Method of the median functions and accessories
 double methodOfTheMedian(double median);
@@ -51,7 +51,7 @@ void printConfig(std::map<std::string, std::string> data);
 std::vector<std::string> fileListReader(int argc, char** argv);
 void printFileList(std::vector<std::string> fileList);
 double determineScalingFactor(std::map<std::string, std::string> configData);
-
+int determineStatistic(std::map<std::string, std::string> configData);
 
 int main(int argc, char** argv) {
 	try {
@@ -60,6 +60,7 @@ int main(int argc, char** argv) {
 		auto fileList = fileListReader(argc, argv);
 		printFileList(fileList);
 		std::cout << "Scaling Factor: " << determineScalingFactor(test) << "\n";
+		std::cout << "Method: " << determineStatistic(test) << "\n";
 		/*
 		auto input = parseCSV("./rad59.csv");
 		auto cultureData = accumulateCultures(input);
@@ -341,4 +342,26 @@ double determineScalingFactor(std::map<std::string, std::string> configData)
 		return std::stod((configData.find("scale"))->second);
 	}
 	return 6.0;
+}
+
+int determineStatistic(std::map<std::string, std::string> configData) //Using enum here to make code more readable. Translates to mss == 0, lc_mm == 1, freq == 2
+{
+	if (configData.find("method") != configData.end()) {
+		auto methodVal = (configData.find("method"))->second;
+		if (methodVal == "mss") {
+			return Statistics::mss;
+		}
+		else if (methodVal == "lc-mm") {
+			return Statistics::lc_mm;
+		}
+		else if (methodVal == "freq") {
+			return Statistics::freq;
+		}
+		else {
+			throw std::runtime_error("Invalid statistic selection! Please choose one of (mss) (lc-mm) (freq)");
+		}
+	}
+	else {
+		return Statistics::mss;
+	}
 }
