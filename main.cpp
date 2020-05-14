@@ -50,6 +50,8 @@ std::map<std::string, std::string> parseConfigFile(const std::string& file);
 void printConfig(std::map<std::string, std::string> data);
 std::vector<std::string> fileListReader(int argc, char** argv);
 void printFileList(std::vector<std::string> fileList);
+double determineScalingFactor(std::map<std::string, std::string> configData);
+
 
 int main(int argc, char** argv) {
 	try {
@@ -57,6 +59,7 @@ int main(int argc, char** argv) {
 		printConfig(test);
 		auto fileList = fileListReader(argc, argv);
 		printFileList(fileList);
+		std::cout << "Scaling Factor: " << determineScalingFactor(test) << "\n";
 		/*
 		auto input = parseCSV("./rad59.csv");
 		auto cultureData = accumulateCultures(input);
@@ -329,4 +332,13 @@ void printFileList(std::vector<std::string> fileList)
 	for (auto i : fileList) {
 		std::cout << i << "\n";
 	}
+}
+
+double determineScalingFactor(std::map<std::string, std::string> configData)
+{
+	//If a scaling factor is defined, use that if not default to x10^6
+	if (configData.find("scale") != configData.end()) {
+		return std::stod((configData.find("scale"))->second);
+	}
+	return 6.0;
 }
