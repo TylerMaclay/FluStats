@@ -48,11 +48,15 @@ double findMedian(const std::vector<Datapoint>& input);
 //Config file input
 std::map<std::string, std::string> parseConfigFile(const std::string& file);
 void printConfig(std::map<std::string, std::string> data);
+std::vector<std::string> fileListReader(int argc, char** argv);
+void printFileList(std::vector<std::string> fileList);
 
 int main(int argc, char** argv) {
 	try {
 		auto test = parseConfigFile("./config.ini");
 		printConfig(test);
+		auto fileList = fileListReader(argc, argv);
+		printFileList(fileList);
 		/*
 		auto input = parseCSV("./rad59.csv");
 		auto cultureData = accumulateCultures(input);
@@ -307,5 +311,22 @@ std::map<std::string, std::string> parseConfigFile(const std::string& file) {
 void printConfig(std::map<std::string, std::string> data) {
 	for (auto it = data.begin(); it != data.end(); it++) {
 		std::cout << it->first << "\t" << it->second << "\n";
+	}
+}
+
+std::vector<std::string> fileListReader(int argc, char** argv)
+{
+	std::vector<std::string> data;
+	for (auto i = 1; i < argc; i++) {
+		data.push_back(std::string(argv[i]));
+	}
+
+	return data;
+}
+
+void printFileList(std::vector<std::string> fileList)
+{
+	for (auto i : fileList) {
+		std::cout << i << "\n";
 	}
 }
