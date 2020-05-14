@@ -45,10 +45,15 @@ double averageCellcounts(const std::vector<Datapoint>& data);
 double findMedian(const std::vector<Datapoint>& input);
 //End Basic stats
 
+//Config file input
+std::map<std::string, std::string> parseConfigFile(const std::string& file);
+void printConfig(std::map<std::string, std::string> data);
 
 int main(int argc, char** argv) {
-	double median = 0.0;
 	try {
+		auto test = parseConfigFile("./config.ini");
+		printConfig(test);
+		/*
 		auto input = parseCSV("./rad59.csv");
 		auto cultureData = accumulateCultures(input);
 		auto cells = averageCellcounts(input);
@@ -57,7 +62,7 @@ int main(int argc, char** argv) {
 		auto tenminussixrate = rate * std::pow(10, 6);
 		auto sigma = 1.225 * std::pow(m, -0.315) / std::sqrt(input.size());
 		std::cout << "m value: " << mssFindM(methodOfTheMedian(findMedian(input)), cultureData) << "\n";
-		std::cout << "Rate: " << tenminussixrate << "x10^-6\n";
+		std::cout << "Rate: " << tenminussixrate << "x10^-6\n";*/
 
 		return 0;
 	}
@@ -257,4 +262,50 @@ double findMedian(const std::vector<Datapoint>& input) {
 	}
 
 	return median;
+}
+
+//Science and statistics stop here, below is program administration
+std::map<std::string, std::string> parseConfigFile(const std::string& file) {
+	std::ifstream in(file);
+	std::map<std::string, std::string> parsedValues;
+	if (!in.is_open()) {
+		throw std::runtime_error("Could not open config file, check that file is valid!");
+	}
+	else {
+		std::string rawData = "";
+		while (std::getline(in, rawData)) {
+			//Comments begin with ";", this subsets away from that.
+			std::string dataWithoutComments = rawData.substr(0, rawData.find(';'));
+			//Removes all whitespace from string then checks if the string is empty. Skipping the line if it is:
+			dataWithoutComments.erase(std::remove_if(dataWithoutComments.begin(), dataWithoutComments.end(), isspace), dataWithoutComments.end());
+			if (dataWithoutComments.empty()) {
+				continue;
+			}
+			else {
+				auto equalSign = dataWithoutComments.find('=');
+				if (equalSign == std::string::npos) {
+					throw std::runtime_error("Improperly formatted config file. Lines should be key=value");
+				}
+				else {
+					std::string key = dataWithoutComments.substr(0, equalSign);
+					std::string value = dataWithoutComments.substr(equalSign+1);
+
+					if (parsedValues.find(key) != parsedValues.end()) {
+						std::cerr << "Warning: a setting has been defined twice. Using most recent definition";
+					}
+
+					parsedValues[key] = value;
+				}
+
+			}
+
+		}
+	}
+
+	return parsedValues;
+}
+void printConfig(std::map<std::string, std::string> data) {
+	for (auto it = data.begin(); it != data.end(); it++) {
+		std::cout << it->first << "\t" << it->second << "\n";
+	}
 }

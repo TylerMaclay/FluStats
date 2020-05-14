@@ -31,3 +31,11 @@
 *.out
 *.app
 /.vs
+/FluStats.vcxproj.user
+/FluStats.vcxproj.filters
+/FluStats.vcxproj
+/FluStats.sln
+/Debug/FluStats.vcxproj.FileListAbsolute.txt
+/Debug/FluStats.log
+/Debug/FluStats.Build.CppClean.log
+/Debug
