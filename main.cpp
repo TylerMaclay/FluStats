@@ -3,6 +3,10 @@
 //Algorithms implemented as described in Rosche & Foster. Methods 2000
 //Trying to clone: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2687991/
 
+//ToDo: Create function to calculate chosen statistic across submitted files
+//ToDo: Generate an output function so for when more than one file is submitted
+//ToDo: Refactor this mess into something readable, maybe alias some commonly used and verbose types
+
 
 #include <iostream>
 #include <cmath>
