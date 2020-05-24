@@ -94,6 +94,40 @@ int determineStatistic(std::map<std::string, std::string> configData) //Using en
 	}
 }
 
+int determineOutput(std::map<std::string, std::string> configData)
+{
+	
+	int retVal = OutputType::console;
+	
+	if (configData.find("output") != configData.end()) {
+		auto dataVal = configData["output"];
+		
+		if (dataVal == "csv") {
+			retVal = OutputType::csv;
+		}
+		else if (dataVal == "tsv") {
+			retVal = OutputType::tsv;
+		}
+		else if (dataVal == "txt") {
+			retVal = OutputType::txt;
+		}
+		else if (dataVal == "cout") {
+			retVal =  OutputType::console;
+		}
+
+	}
+
+	return retVal;
+}
+
+std::string determineOutputFile(std::map<std::string, std::string> configData)
+{
+	if (configData.find("outputFile") != configData.end()) {
+		return configData["outputFile"];
+	}
+	return "./out";
+}
+
 double ConfigOptions::getScalingFactor()
 {
 	return scalingFactor;
@@ -114,5 +148,15 @@ std::string ConfigOptions::getNextFile()
 	if (fileIt != files.end()) {
 		return *fileIt++;
 	}
-	else return nullptr;
+	else return std::string("");
+}
+
+int ConfigOptions::getOutput()
+{
+	return output;
+}
+
+std::string ConfigOptions::getOutputFile()
+{
+	return outputFile;
 }

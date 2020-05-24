@@ -19,39 +19,68 @@
 //Local Includes
 #include "FS_Stats.h"
 #include "config.h"
+#include "OutputHandle.h"
+
+
 
 int main(int argc, char** argv) {
 	try {
-		
+
 		ConfigOptions config(argc, argv, "./config.ini");
 		printFileList(config.getFileList());
+		std::string outputFile = config.getOutputFile();
 		std::cout << "Scaling Factor: " << config.getScalingFactor() << "\n";
 		std::cout << "Method: " << config.getStatistic() << "\n";
-		/*
-		auto test = parseConfigFile("./config.ini");
-		printConfig(test);
-		auto fileList = fileListReader(argc, argv);
-		printFileList(fileList);
-		std::cout << "Scaling Factor: " << determineScalingFactor(test) << "\n";
-		std::cout << "Method: " << determineStatistic(test) << "\n";
-		
-		auto input = parseCSV("./rad59.csv");
-		auto cultureData = accumulateCultures(input);
-		auto cells = averageCellcounts(input);
-		auto m = mssFindM(methodOfTheMedian(findMedian(input)), cultureData);
-		auto rate = (m / cells);
-		auto tenminussixrate = rate * std::pow(10, 6);
-		auto sigma = 1.225 * std::pow(m, -0.315) / std::sqrt(input.size());
-		std::cout << "m value: " << mssFindM(methodOfTheMedian(findMedian(input)), cultureData) << "\n";
-		std::cout << "Rate: " << tenminussixrate << "x10^-6\n";
+		std::vector<OutputContainer> accumulatedData;
+		auto file = config.getNextFile();
+		OutputHandle* output = nullptr;
 
-		auto rawData = mSweep(findMedian(input), cultureData);
-		std::ofstream out("dataOut.csv");
-		if (!out.is_open()) { throw std::runtime_error("Could not open output file!"); }
-		for (auto it = rawData.begin(); it != rawData.end(); it++) {
-			out << it->first << "," << it->second << "\n";
-		}*/
+		switch (config.getOutput()) {
 
+		case OutputType::csv:
+			output = new OutputCSV(outputFile);
+			break;
+		case OutputType::tsv:
+			output = new OutputTSV(outputFile);
+			break;
+		case OutputType::txt:
+			output = new OutputTXT(outputFile);
+			break;
+		case OutputType::console:
+			output = new OutputConsole();
+			break;
+		default:
+			break;
+		}
+
+		while (!file.empty()) {
+			auto inputData = parseCSV(file);
+			auto cultureData = accumulateCultures(inputData);
+			auto cellCount = averageCellcounts(inputData);
+			auto m = 0.0;
+
+			switch (config.getStatistic()) {
+			case Statistics::freq:
+				m = findMedian(inputData);
+				break;
+			case Statistics::lc_mm:
+				m = methodOfTheMedian(findMedian(inputData));
+				break;
+			case Statistics::mss:
+				m = mssFindM(methodOfTheMedian(findMedian(inputData)), cultureData);
+				break;
+			}
+
+			auto rate = m / cellCount;
+			accumulatedData.push_back(OutputContainer(file, m, rate * std::pow(10, config.getScalingFactor()), cellCount));
+			file = config.getNextFile();
+		}
+
+		for (auto it = accumulatedData.begin(); it != accumulatedData.end(); it++) {
+			output->writeData(*it);
+		}
+
+		delete output;
 		return 0;
 	}
 	catch (const std::exception& e) {
