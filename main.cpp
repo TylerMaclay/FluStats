@@ -19,7 +19,7 @@
 //Local Includes
 #include "FS_Stats.h"
 
-
+enum Statistics { mss, lc_mm, freq };
 
 //Config file input
 std::map<std::string, std::string> parseConfigFile(const std::string& file);
