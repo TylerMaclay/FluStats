@@ -2,10 +2,10 @@
 #include <vector>
 #include <string>
 #include <map>
-#include <cmath>
-#include <fstream>
+#include <cmath> //Needed for power function
+#include <fstream> //Needed for CSV input -- should move this to another header/file for clarity
 #include <algorithm>
-#include <future>
+#include <future> //ASYNC
 
 //This file will contain all of the statistics functions for this program to function
 

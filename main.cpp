@@ -3,9 +3,6 @@
 //Algorithms implemented as described in Rosche & Foster. Methods 2000
 //Trying to clone: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2687991/
 
-//ToDo: Create function to calculate chosen statistic across submitted files
-//ToDo: Generate an output function so for when more than one file is submitted
-//ToDo: Refactor this mess into something readable, maybe alias some commonly used and verbose types
 
 
 #include <iostream>
@@ -35,6 +32,7 @@ int main(int argc, char** argv) {
 		auto file = config.getNextFile();
 		OutputHandle* output = nullptr;
 
+		//Creates output object
 		switch (config.getOutput()) {
 
 		case OutputType::csv:
@@ -53,6 +51,7 @@ int main(int argc, char** argv) {
 			break;
 		}
 
+		//Below processes files and sends data for appropriate statistics
 		while (!file.empty()) {
 			auto inputData = parseCSV(file);
 			auto cultureData = accumulateCultures(inputData);
@@ -76,6 +75,7 @@ int main(int argc, char** argv) {
 			file = config.getNextFile();
 		}
 
+		//Below writes output to whatever was chosen in config
 		for (auto it = accumulatedData.begin(); it != accumulatedData.end(); it++) {
 			output->writeData(*it);
 		}
@@ -83,6 +83,7 @@ int main(int argc, char** argv) {
 		delete output;
 		return 0;
 	}
+
 	catch (const std::exception& e) {
 		std::cerr<<e.what();
 		return -1;

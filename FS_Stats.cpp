@@ -27,41 +27,40 @@ double mssFindM(double initM, const std::map<int, int>& cultureData) {
 	auto epsilon = 0.0001;
 	auto current = initM;
 
-	auto lowScore = std::async(mssScore,cultureData, mssAccumulationFunction(current - epsilon, maxVal));
-	auto currentScore = std::async(mssScore,cultureData, mssAccumulationFunction(current, maxVal));
-	auto highScore = std::async(mssScore,cultureData, mssAccumulationFunction(current + epsilon, maxVal));
+	auto lowSAccumulate = std::async(mssAccumulationFunction, current - epsilon, maxVal);
+	auto currentSAccumulate = std::async(mssAccumulationFunction,current, maxVal);
+	auto highSAccumulate = std::async(mssAccumulationFunction,current + epsilon, maxVal);
 
+	lowSAccumulate.wait();
+	currentSAccumulate.wait();
+	highSAccumulate.wait();
 
-	lowScore.wait();
-	currentScore.wait();
-	highScore.wait();
+	auto lowScore = mssScore(cultureData, lowSAccumulate.get());
+	auto currentScore = mssScore(cultureData, currentSAccumulate.get());
+	auto highScore = mssScore(cultureData, highSAccumulate.get());
 
-
-	auto ls = lowScore.get();
-	auto cs = currentScore.get();
-	auto hs = highScore.get();
-
-	while (cs < ls || cs < hs) {
-		if (cs < ls) {
+	while (currentScore < lowScore || currentScore < highScore) {
+		if (currentScore < lowScore) {
 			high = current;
 			current = (current + low) / 2;
 		}
-		else if (cs < hs) {
+		else if (currentScore < highScore) {
 			low = current;
 			current = (current + high) / 2;
 		}
 
-		lowScore = std::async(mssScore,cultureData, mssAccumulationFunction(current - epsilon, maxVal));
-		currentScore = std::async(mssScore,cultureData, mssAccumulationFunction(current, maxVal));
-		highScore = std::async(mssScore,cultureData, mssAccumulationFunction(current + epsilon, maxVal));
-		
-		lowScore.wait();
-		currentScore.wait();
-		highScore.wait();
+		lowSAccumulate = std::async(mssAccumulationFunction, current - epsilon, maxVal);
+		currentSAccumulate = std::async(mssAccumulationFunction, current, maxVal);
+		highSAccumulate = std::async(mssAccumulationFunction, current + epsilon, maxVal);
 
-		ls = lowScore.get();
-		cs = currentScore.get();
-		hs = highScore.get();
+		lowSAccumulate.wait();
+		currentSAccumulate.wait();
+		highSAccumulate.wait();
+
+		lowScore = mssScore(cultureData, lowSAccumulate.get());
+		currentScore = mssScore(cultureData, currentSAccumulate.get());
+		highScore = mssScore(cultureData, highSAccumulate.get());
+		
 	}
 	return current;
 }
