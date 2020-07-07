@@ -31,16 +31,22 @@ double mssFindM(double initM, const std::map<int, int>& cultureData) {
 	auto currentScore = std::async(mssScore,cultureData, mssAccumulationFunction(current, maxVal));
 	auto highScore = std::async(mssScore,cultureData, mssAccumulationFunction(current + epsilon, maxVal));
 
+
 	lowScore.wait();
 	currentScore.wait();
 	highScore.wait();
 
-	while (currentScore.get() < lowScore.get() || currentScore.get() < highScore.get()) {
-		if (currentScore.get() < lowScore.get()) {
+
+	auto ls = lowScore.get();
+	auto cs = currentScore.get();
+	auto hs = highScore.get();
+
+	while (cs < ls || cs < hs) {
+		if (cs < ls) {
 			high = current;
 			current = (current + low) / 2;
 		}
-		else if (currentScore.get() < highScore.get()) {
+		else if (cs < hs) {
 			low = current;
 			current = (current + high) / 2;
 		}
@@ -52,6 +58,10 @@ double mssFindM(double initM, const std::map<int, int>& cultureData) {
 		lowScore.wait();
 		currentScore.wait();
 		highScore.wait();
+
+		ls = lowScore.get();
+		cs = currentScore.get();
+		hs = highScore.get();
 	}
 	return current;
 }
