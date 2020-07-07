@@ -15,17 +15,38 @@
 #include <string>
 #include <fstream>
 #include <algorithm>
+#include <chrono>
 
 //Local Includes
 #include "FS_Stats.h"
 #include "config.h"
 #include "OutputHandle.h"
 
-
+struct TimeVals {
+	std::vector<std::chrono::time_point<std::chrono::steady_clock>> rawVals;
+	std::vector<double> adjustedVals;
+	std::vector<double> adjacentVals;
+	void getTime() {
+		if (rawVals.empty()) {
+			rawVals.push_back(std::chrono::steady_clock::now());
+		}
+		else {
+			rawVals.push_back(std::chrono::steady_clock::now());
+			std::chrono::duration<double> diffAdjust = rawVals.back() - rawVals[0];
+			std::chrono::duration<double> diffAdjacent = rawVals.back() - rawVals[rawVals.size() - 2]; //std::vector::size returns number of elements in a vector size-2 gives the second-to-last value
+			adjustedVals.push_back(diffAdjust.count());
+			adjacentVals.push_back(diffAdjacent.count());
+		}
+	
+	
+	};
+};
 
 int main(int argc, char** argv) {
 	try {
-
+		TimeVals program;
+		TimeVals stats;
+		program.getTime();
 		ConfigOptions config(argc, argv, "./config.ini");
 		printFileList(config.getFileList());
 		std::string outputFile = config.getOutputFile();
@@ -58,7 +79,7 @@ int main(int argc, char** argv) {
 			auto cultureData = accumulateCultures(inputData);
 			auto cellCount = averageCellcounts(inputData);
 			auto m = 0.0;
-
+			stats.getTime();
 			switch (config.getStatistic()) {
 			case Statistics::freq:
 				m = findMedian(inputData);
@@ -76,9 +97,17 @@ int main(int argc, char** argv) {
 			file = config.getNextFile();
 		}
 
+		stats.getTime();
+
 		for (auto it = accumulatedData.begin(); it != accumulatedData.end(); it++) {
 			output->writeData(*it);
 		}
+
+		for (auto it = stats.adjacentVals.begin(); it != stats.adjacentVals.end(); it++) {
+			std::cout << *it << "s\n";
+		}
+		program.getTime();
+		std::cout<<program.adjustedVals[0]<<"s";
 
 		delete output;
 		return 0;
