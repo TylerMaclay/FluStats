@@ -5,6 +5,8 @@
 #include <cmath>
 #include <fstream>
 #include <algorithm>
+#include <future>
+
 //This file will contain all of the statistics functions for this program to function
 
 class Datapoint {
