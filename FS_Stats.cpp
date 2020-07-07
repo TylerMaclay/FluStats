@@ -26,23 +26,42 @@ double mssFindM(double initM, const std::map<int, int>& cultureData) {
 	auto high = static_cast<double>(maxVal);
 	auto epsilon = 0.0001;
 	auto current = initM;
-	auto lowScore = mssScore(cultureData, mssAccumulationFunction(current - epsilon, maxVal));
-	auto currentScore = mssScore(cultureData, mssAccumulationFunction(current, maxVal));
-	auto highScore = mssScore(cultureData, mssAccumulationFunction(current + epsilon, maxVal));
 
-	while (currentScore < lowScore || currentScore < highScore) {
-		if (currentScore < lowScore) {
+	auto lowScore = std::async(mssScore,cultureData, mssAccumulationFunction(current - epsilon, maxVal));
+	auto currentScore = std::async(mssScore,cultureData, mssAccumulationFunction(current, maxVal));
+	auto highScore = std::async(mssScore,cultureData, mssAccumulationFunction(current + epsilon, maxVal));
+
+
+	lowScore.wait();
+	currentScore.wait();
+	highScore.wait();
+
+
+	auto ls = lowScore.get();
+	auto cs = currentScore.get();
+	auto hs = highScore.get();
+
+	while (cs < ls || cs < hs) {
+		if (cs < ls) {
 			high = current;
 			current = (current + low) / 2;
 		}
-		else if (currentScore < highScore) {
+		else if (cs < hs) {
 			low = current;
 			current = (current + high) / 2;
 		}
 
-		lowScore = mssScore(cultureData, mssAccumulationFunction(current - epsilon, maxVal));
-		currentScore = mssScore(cultureData, mssAccumulationFunction(current, maxVal));
-		highScore = mssScore(cultureData, mssAccumulationFunction(current + epsilon, maxVal));
+		lowScore = std::async(mssScore,cultureData, mssAccumulationFunction(current - epsilon, maxVal));
+		currentScore = std::async(mssScore,cultureData, mssAccumulationFunction(current, maxVal));
+		highScore = std::async(mssScore,cultureData, mssAccumulationFunction(current + epsilon, maxVal));
+		
+		lowScore.wait();
+		currentScore.wait();
+		highScore.wait();
+
+		ls = lowScore.get();
+		cs = currentScore.get();
+		hs = highScore.get();
 	}
 	return current;
 }
