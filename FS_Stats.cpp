@@ -64,7 +64,7 @@ double mssFindM(double initM, const std::map<int, int>& cultureData) {
 	}
 	return current;
 }
-std::map<double, double> mSweep(double initM, const std::map<int, int>& cultures) {
+std::map<double, double> mSweep(const std::map<int, int>& cultures) {
 	auto low = 0.0001;
 	auto high = 1000.0;
 	auto maxElem = (cultures.rbegin())->first;

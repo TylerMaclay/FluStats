@@ -37,7 +37,7 @@ private:
 
 public:
 
-	ConfigOptions(int argc, char** argv, const std::string& configFile ="") : configFileLocation(configFile), scalingFactor(1000000.0), statistic(0), output(OutputType::console), outputFile("./out") {
+	ConfigOptions(int argc, char** argv, const std::string& configFile ="") : scalingFactor(1000000.0), statistic(0), output(OutputType::console), configFileLocation(configFile), outputFile("./out") {
 		if (!configFile.empty()) {
 			configDataRaw = parseConfigFile(configFile);
 			scalingFactor = determineScalingFactor(configDataRaw);

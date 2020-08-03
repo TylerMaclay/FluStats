@@ -17,6 +17,7 @@ public:
 class OutputHandle {
 public:
 	virtual void writeData(const OutputContainer& data) =0;
+	virtual ~OutputHandle() {}
 };
 
 class OutputCSV : public OutputHandle {
