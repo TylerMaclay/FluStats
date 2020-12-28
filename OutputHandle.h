@@ -10,8 +10,11 @@ public:
 	double m;
 	double rate;
 	double cellCount;
+	double stdDev;
+	double upperCI;
+	double lowerCI;
 
-	OutputContainer(std::string name, double _m, double _rate, double _cellCount) : fileName(name), m(_m), rate(_rate), cellCount(_cellCount) {}
+	OutputContainer(std::string name, double _m, double _rate, double _cellCount, double _stdDev, double _upperCI, double _lowerCI) : fileName(name), m(_m), rate(_rate), cellCount(_cellCount), stdDev(_stdDev), upperCI(_upperCI), lowerCI(_lowerCI) {}
 };
 
 class OutputHandle {

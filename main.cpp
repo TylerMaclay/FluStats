@@ -70,9 +70,18 @@ int main(int argc, char** argv) {
 				m = mssFindM(methodOfTheMedian(findMedian(inputData)), cultureData);
 				break;
 			}
+			auto cultureCount = 0;
+			for (auto it = cultureData.begin(); it != cultureData.end(); it++) {
+				cultureCount += it->second;
+			}
 
 			auto rate = m / cellCount;
-			accumulatedData.push_back(OutputContainer(file, m, rate * std::pow(10, config.getScalingFactor()), cellCount));
+			auto lnstdDev = 1.225 * std::pow(m, -0.315) / std::sqrt(cultureCount);
+
+			auto upperCI = std::exp(std::log(m) + (1.96 * lnstdDev * std::pow(std::exp(1.96 * lnstdDev), -0.315)));
+			auto lowerCI = std::exp(std::log(m) - (1.96 * lnstdDev * std::pow(std::exp(1.96 * lnstdDev), +0.315)));
+
+			accumulatedData.push_back(OutputContainer(file, m, rate * std::pow(10, config.getScalingFactor()), cellCount, lnstdDev, upperCI, lowerCI));
 			file = config.getNextFile();
 		}
 

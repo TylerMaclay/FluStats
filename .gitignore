@@ -40,3 +40,5 @@
 /Debug/FluStats.Build.CppClean.log
 /Debug
 /x64/Debug
+/Release
+/x64/Release
