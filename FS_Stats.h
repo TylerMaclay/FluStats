@@ -6,6 +6,7 @@
 #include <fstream>
 #include <algorithm>
 #include <future>
+#include <limits>
 
 //This file will contain all of the statistics functions for this program to function
 

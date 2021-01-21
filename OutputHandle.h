@@ -4,6 +4,12 @@
 #include <string>
 #include <iostream>
 
+struct finalData {
+	double median;
+	double m;
+	double i;
+};
+
 class OutputContainer {
 public:
 	std::string fileName;
@@ -20,6 +26,7 @@ public:
 class OutputHandle {
 public:
 	virtual void writeData(const OutputContainer& data) =0;
+	virtual void writeData(const finalData& data) {};
 };
 
 class OutputCSV : public OutputHandle {
@@ -27,6 +34,9 @@ class OutputCSV : public OutputHandle {
 public:
 	OutputCSV(const std::string& outFileName);
 	void writeData(const OutputContainer& data);
+	void writeData(const finalData& data) {
+		out << data.i << "," << data.m << "," << data.median << "\n";
+	}
 };
 
 class OutputTSV : public OutputHandle {
