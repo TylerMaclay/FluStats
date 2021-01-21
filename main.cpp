@@ -26,13 +26,13 @@
 int main(int argc, char** argv) {
 	try {
 
-		/*ConfigOptions config(argc, argv, "./config.ini");
-		//printFileList(config.getFileList());
+		ConfigOptions config(argc, argv, "./config.ini");
+		printFileList(config.getFileList());
 		std::string outputFile = config.getOutputFile();
 		std::cout << "Scaling Factor: " << config.getScalingFactor() << "\n";
 		std::cout << "Method: " << config.getStatistic() << "\n";
 		std::vector<OutputContainer> accumulatedData;
-		//auto file = config.getNextFile();
+		auto file = config.getNextFile();
 		OutputHandle* output = nullptr;
 
 		switch (config.getOutput()) {
@@ -54,97 +54,41 @@ int main(int argc, char** argv) {
 		}
 		
 
-		std::vector<finalData> findat;
-
-		for (auto i = 1.0; i < 20000; i*=1.1) {
-			auto cellCount_init = 1E6;
-
-			if (std::find_if(findat.begin(), findat.end(), [&](const finalData& data){return std::round(i) == std::round(data.i); }) != findat.end()) {
-				continue;
-			}
-			std::vector<Datapoint> inputData;
-			for (int j = 0; j < 10; j++) {
-				inputData.push_back(Datapoint(std::round(i), cellCount_init));
-			}
+		while (!file.empty()) {
+			auto inputData = parseCSV(file);
 			auto cultureData = accumulateCultures(inputData);
 			auto cellCount = averageCellcounts(inputData);
 			auto m = 0.0;
 
-
-			auto median = methodOfTheMedian(findMedian(inputData));
-			m = mssFindM(methodOfTheMedian(findMedian(inputData)), cultureData);
+			switch (config.getStatistic()) {
+			case Statistics::freq:
+				m = findMedian(inputData);
+				break;
+			case Statistics::lc_mm:
+				m = methodOfTheMedian(findMedian(inputData));
+				break;
+			case Statistics::mss:
+				m = mssFindM(methodOfTheMedian(findMedian(inputData)), cultureData);
+				break;
+			}
 			auto cultureCount = 0;
 			for (auto it = cultureData.begin(); it != cultureData.end(); it++) {
 				cultureCount += it->second;
 			}
 
-			findat.push_back(finalData{ median, m, std::round(i) });
+			auto rate = m / cellCount;
+			auto lnstdDev = 1.225 * std::pow(m, -0.315) / std::sqrt(cultureCount);
+
+			auto upperCI = std::exp(std::log(m) + (1.96 * lnstdDev * std::pow(std::exp(1.96 * lnstdDev), -0.315))) / cellCount;
+			auto lowerCI = std::exp(std::log(m) - (1.96 * lnstdDev * std::pow(std::exp(1.96 * lnstdDev), +0.315))) / cellCount;
+
+			accumulatedData.push_back(OutputContainer(file, m, rate * std::pow(10, config.getScalingFactor()), cellCount, lnstdDev, upperCI * std::pow(10, config.getScalingFactor()), lowerCI * std::pow(10, config.getScalingFactor())));
+			file = config.getNextFile();
 		}
 
-		for (auto it = findat.begin(); it != findat.end(); it++) {
+		for (auto it = accumulatedData.begin(); it != accumulatedData.end(); it++) {
 			output->writeData(*it);
 		}
-		*/
-		std::vector<Datapoint> ctrl_th;
-		std::vector<Datapoint> thirteennn;
-		std::vector<Datapoint> fiftyeightff;
-		std::vector<Datapoint> oneD;
-
-		for (auto i = 0; i < 10; i++) {
-			ctrl_th.push_back(Datapoint(252, 1E6));
-			thirteennn.push_back(Datapoint(1399, 1E6));
-			fiftyeightff.push_back(Datapoint(5844, 1E6));
-			oneD.push_back(Datapoint(1, 1E6));
-		}
-
-		auto one = accumulateCultures(ctrl_th);
-		auto two = accumulateCultures(thirteennn);
-		auto three = accumulateCultures(fiftyeightff);
-		auto oneD_t = accumulateCultures(oneD);
-
-		/*auto msone = mSweep(10, one);
-		
-		std::ofstream outone("out1.csv");
-		outone << "m,probability\n";
-		for (auto it = msone.begin(); it != msone.end(); it++) {
-			outone << it->first << "," << it->second << "\n";
-		}
-
-		outone.close();
-		*/
-		auto mstwo = mSweep(10, two);
-
-		std::ofstream outtwo("out2.csv");
-		outtwo << "m,probability\n";
-		for (auto it = mstwo.begin(); it != mstwo.end(); it++) {
-			outtwo << it->first << "," << it->second << "\n";
-		}
-
-		outtwo.close();
-
-
-		auto msthree = mSweep(10, three);
-
-		std::ofstream outth("out3.csv");
-		outtwo << "m,probability\n";
-		for (auto it = msthree.begin(); it != msthree.end(); it++) {
-			outth << it->first << "," << it->second << "\n";
-		}
-
-		outth.close();
-		/*
-		auto msOned = mSweep(10, oneD_t);
-		std::ofstream outd("out4.csv");
-		outone << "m,probability\n";
-		for (auto it = msOned.begin(); it != msOned.end(); it++) {
-			outth << it->first << "," << it->second << "\n";
-		}
-
-		outd.close();
-		//delete output;
-
-		*/
-		return 0;
 	}
 	catch (const std::exception& e) {
 		std::cerr<<e.what();
