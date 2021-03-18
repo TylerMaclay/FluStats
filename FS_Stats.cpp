@@ -156,6 +156,16 @@ double mssFindM(double initM, const std::map<int, int>& cultureData) {
 	}
 	return current;
 }
+std::pair<double, double> getConfidenceInterval(double m, double lstdDev, double cellCount) { //Note! Calculates confidence intervals of the RATE not the mutation count
+	double upperCI = std::exp(std::log(m) + (1.96 * lstdDev * std::pow(std::exp(1.96 * lstdDev), -0.315))) / cellCount;
+	double lowerCI = std::exp(std::log(m) - (1.96 * lstdDev * std::pow(std::exp(1.96 * lstdDev), +0.315))) / cellCount;
+	return std::pair<double, double>(upperCI, lowerCI);
+}
+
+double calculateLogStdDev(double m, double cultureCount) {
+	return (1.225 * std::pow(m, -0.315) / std::sqrt(cultureCount));
+}
+
 std::map<double, double> mSweep(double initM, const std::map<int, int>& cultures) {
 	auto low = 750;
 	auto high = 780.0;

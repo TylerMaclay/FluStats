@@ -29,6 +29,8 @@ std::vector<double> mssAccumulationFunction(double mGuess, int max);
 std::map<double, double> mSweep(double initM, const std::map<int, int>& cultures);
 double mssScore(const std::map<int, int>& equation, const std::vector<double>& distribution);
 double mssFindM(double initM, const std::map<int, int>& cultureData);
+std::pair<double, double> getConfidenceInterval(double m, double lstdDev, double cellCount);
+double calculateLogStdDev(double m, double cultureCount);
 //MSS-Maximum Likelihood functions end
 
 

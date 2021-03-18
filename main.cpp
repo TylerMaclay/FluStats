@@ -77,12 +77,11 @@ int main(int argc, char** argv) {
 			}
 
 			auto rate = m / cellCount;
-			auto lnstdDev = 1.225 * std::pow(m, -0.315) / std::sqrt(cultureCount);
+			auto lnstdDev = calculateLogStdDev(m, cultureCount);
 
-			auto upperCI = std::exp(std::log(m) + (1.96 * lnstdDev * std::pow(std::exp(1.96 * lnstdDev), -0.315))) / cellCount;
-			auto lowerCI = std::exp(std::log(m) - (1.96 * lnstdDev * std::pow(std::exp(1.96 * lnstdDev), +0.315))) / cellCount;
-
-			accumulatedData.push_back(OutputContainer(file, m, rate * std::pow(10, config.getScalingFactor()), cellCount, lnstdDev, upperCI * std::pow(10, config.getScalingFactor()), lowerCI * std::pow(10, config.getScalingFactor())));
+			auto confidenceIntervals = getConfidenceInterval(m, lnstdDev, cellCount);
+		
+			accumulatedData.push_back(OutputContainer(file, m, rate * std::pow(10, config.getScalingFactor()), cellCount, lnstdDev, confidenceIntervals.first * std::pow(10, config.getScalingFactor()), confidenceIntervals.second * std::pow(10, config.getScalingFactor())));
 			file = config.getNextFile();
 		}
 
