@@ -20,6 +20,7 @@
 #include "FS_Stats.h"
 #include "config.h"
 #include "OutputHandle.h"
+#include "logger.h"
 
 
 
@@ -27,10 +28,15 @@ int main(int argc, char** argv) {
 	try {
 
 		ConfigOptions config(argc, argv, "./config.ini");
+		Logger FSLog(config.getLogfile());
+		FSLog.sendMessage("Config File Parsed and log file opened!");
 		printFileList(config.getFileList());
 		std::string outputFile = config.getOutputFile();
+		FSLog.sendMessage( "Output file opened " + config.getOutputFile() );
 		std::cout << "Scaling Factor: " << config.getScalingFactor() << "\n";
+		FSLog.sendMessage("Scaling factor: " + std::to_string(config.getScalingFactor()) );
 		std::cout << "Method: " << config.getStatistic() << "\n";
+		FSLog.sendMessage("Method: " + std::to_string(config.getStatistic()));
 		std::vector<OutputContainer> accumulatedData;
 		auto file = config.getNextFile();
 		OutputHandle* output = nullptr;
@@ -55,6 +61,9 @@ int main(int argc, char** argv) {
 		
 
 		while (!file.empty()) {
+			std::string fileProcessMsg = ("Processing: " + file);
+			std::cout << fileProcessMsg << std::endl;
+			FSLog.sendMessage(fileProcessMsg);
 			auto inputData = parseCSV(file);
 			auto cultureData = accumulateCultures(inputData);
 			auto cellCount = averageCellcounts(inputData);
@@ -83,11 +92,17 @@ int main(int argc, char** argv) {
 		
 			accumulatedData.push_back(OutputContainer(file, m, rate * std::pow(10, config.getScalingFactor()), cellCount, lnstdDev, confidenceIntervals.first * std::pow(10, config.getScalingFactor()), confidenceIntervals.second * std::pow(10, config.getScalingFactor())));
 			file = config.getNextFile();
+			std::cout << "Done!" << std::endl;
+			FSLog.sendMessage("Done!");
 		}
+
+		FSLog.sendMessage("Writing data to file...");
 
 		for (auto it = accumulatedData.begin(); it != accumulatedData.end(); it++) {
 			output->writeData(*it);
 		}
+
+		FSLog.sendMessage("Done!");
 	}
 	catch (const std::exception& e) {
 		std::cerr<<e.what();

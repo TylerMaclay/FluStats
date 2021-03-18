@@ -20,6 +20,7 @@ double determineScalingFactor(std::map<std::string, std::string> configData);
 int determineStatistic(std::map<std::string, std::string> configData);
 int determineOutput(std::map<std::string, std::string> configData);
 std::string determineOutputFile(std::map<std::string, std::string> configData);
+std::string determineLogFile(std::map<std::string, std::string> configData);
 
 //Class to hold config options
 class ConfigOptions {
@@ -32,18 +33,20 @@ private:
 	std::string configFileLocation;
 	std::vector<std::string>::iterator fileIt;
 	std::string outputFile;
+	std::string logFile;
 
 
 
 public:
 
-	ConfigOptions(int argc, char** argv, const std::string& configFile ="") : configFileLocation(configFile), scalingFactor(1000000.0), statistic(0), output(OutputType::console), outputFile("./out") {
+	ConfigOptions(int argc, char** argv, const std::string& configFile ="") : configFileLocation(configFile), scalingFactor(1000000.0), statistic(0), output(OutputType::console), outputFile("./out"), logFile("./log") {
 		if (!configFile.empty()) {
 			configDataRaw = parseConfigFile(configFile);
 			scalingFactor = determineScalingFactor(configDataRaw);
 			statistic = determineStatistic(configDataRaw);
 			output = determineOutput(configDataRaw);
 			outputFile = determineOutputFile(configDataRaw);
+			logFile = determineLogFile(configDataRaw);
 		}
 		files = fileListReader(argc, argv);
 		fileIt = files.begin();
@@ -56,6 +59,7 @@ public:
 	std::string getNextFile();
 	int getOutput();
 	std::string getOutputFile();
+	std::string getLogfile();
 
 
 };

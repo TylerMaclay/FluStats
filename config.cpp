@@ -128,6 +128,14 @@ std::string determineOutputFile(std::map<std::string, std::string> configData)
 	return "./out";
 }
 
+std::string determineLogFile(std::map<std::string, std::string> configData)
+{
+	if (configData.find("logFile") != configData.end()) {
+		return configData["logFile"];
+	}
+	return "./log";
+}
+
 double ConfigOptions::getScalingFactor()
 {
 	return scalingFactor;
@@ -159,4 +167,9 @@ int ConfigOptions::getOutput()
 std::string ConfigOptions::getOutputFile()
 {
 	return outputFile;
+}
+
+std::string ConfigOptions::getLogfile()
+{
+	return logFile;
 }
