@@ -43,3 +43,4 @@
 /Release
 /x64/Release
 /x64/Release_Standalone
+/out/build/x64-debug
